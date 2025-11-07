@@ -11,7 +11,8 @@ def create_app():
     
     # Configure session
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-    app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+    app.config['SESSION_COOKIE_SECURE'] = False
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
     
     # Enable CORS with credentials
     CORS(app, 
@@ -44,4 +45,11 @@ def create_app():
 if __name__ == '__main__':
     app = create_app()
     port = int(os.getenv('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    # Use threaded=False and processes=1 for Windows stability
+    app.run(
+        host='127.0.0.1',
+        port=port,
+        debug=True,
+        threaded=True,
+        use_reloader=False  # Disable reloader to prevent socket issues
+    )
