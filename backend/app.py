@@ -10,8 +10,8 @@ def create_app():
     app.secret_key = Config.SECRET_KEY
     
     # Configure session
-    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-    app.config['SESSION_COOKIE_SECURE'] = False
+    app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+    app.config['SESSION_COOKIE_SECURE'] = True
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     
     # Enable CORS with credentials
@@ -19,7 +19,8 @@ def create_app():
          resources={r"/api/*": {"origins": Config.FRONTEND_URL}},
          supports_credentials=True,
          allow_headers=["Content-Type", "Authorization"],
-         methods=["GET", "POST", "OPTIONS"])
+         methods=["GET", "POST", "OPTIONS"],
+         expose_headers=["Content-Type", "Authorization"])
     
     # Register blueprints
     from routes.auth import auth_bp
@@ -47,9 +48,7 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     # Use threaded=False and processes=1 for Windows stability
     app.run(
-        host='127.0.0.1',
+        host='0.0.0.0',
         port=port,
-        debug=True,
-        threaded=True,
-        use_reloader=False  # Disable reloader to prevent socket issues
+        debug=False
     )
