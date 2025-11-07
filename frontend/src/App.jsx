@@ -9,30 +9,42 @@ function App() {
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [checking, setChecking] = useState(false);
+ 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    checkAuth();
-    
-    // Check for auth callback
+    // Check for auth callback first
     const params = new URLSearchParams(window.location.search);
     if (params.get('auth') === 'success') {
       setAuthenticated(true);
+      setLoading(false);
       window.history.replaceState({}, document.title, '/');
+      return;
     } else if (params.get('auth') === 'error') {
       const message = params.get('message') || 'Authentication failed';
       setError(message);
+      setLoading(false);
       window.history.replaceState({}, document.title, '/');
+      return;
     }
-  }, []);
+
+    // Only check auth once
+    checkAuth();
+  }, []); // Empty dependency array - only run once
 
   const checkAuth = async () => {
+    if (checking) return; // Prevent duplicate calls
+    
+    setChecking(true);
     try {
       const result = await checkAuthStatus();
       setAuthenticated(result.authenticated);
     } catch (err) {
+      console.log('Not authenticated');
       setAuthenticated(false);
     } finally {
       setLoading(false);
+      setChecking(false);
     }
   };
 
@@ -75,7 +87,7 @@ function App() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center transform hover:scale-105 transition-transform duration-300">
           {/* Logo/Icon */}
-          <div className="bg-gradient-to-br from-blue-600 to-purple-600 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl animate-pulse">
+          <div className="bg-gradient-to-br from-blue-600 to-purple-600 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
             <Mail className="w-10 h-10 text-white" />
           </div>
 
@@ -103,7 +115,7 @@ function App() {
 
           {/* Error Message */}
           {error && (
-            <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl animate-shake">
+            <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
               <p className="text-red-600 text-sm font-medium">{error}</p>
               <button
                 onClick={() => setError(null)}

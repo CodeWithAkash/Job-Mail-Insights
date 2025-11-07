@@ -7,16 +7,20 @@ const api = axios.create({
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
+  timeout: 20000 // 20 second timeout
 });
 
 // Add response interceptor for better error handling
 api.interceptors.response.use(
   response => response,
   error => {
+    if (error.code === 'ECONNABORTED') {
+      console.log('Request timeout');
+    }
     if (error.response?.status === 401) {
-      // Redirect to login if unauthorized
-      window.location.href = '/';
+      // Don't redirect on 401 during auth check
+      console.log('Not authenticated');
     }
     return Promise.reject(error);
   }
@@ -28,8 +32,15 @@ export const initiateLogin = async () => {
 };
 
 export const checkAuthStatus = async () => {
-  const response = await api.get('/auth/status');
-  return response.data;
+  try {
+    const response = await api.get('/auth/status');
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 401) {
+      return { authenticated: false };
+    }
+    throw error;
+  }
 };
 
 export const logout = async () => {
