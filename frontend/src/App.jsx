@@ -13,6 +13,22 @@ function App() {
  
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    const checkAuth = async () => {
+      if (checking) return;
+      
+      setChecking(true);
+      try {
+        const result = await checkAuthStatus();
+        setAuthenticated(result.authenticated);
+      } catch (err) {
+        console.log('Not authenticated');
+        setAuthenticated(false);
+      } finally {
+        setLoading(false);
+        setChecking(false);
+      }
+    };
+
     // Check for auth callback first
     const params = new URLSearchParams(window.location.search);
     if (params.get('auth') === 'success') {
@@ -30,23 +46,7 @@ function App() {
 
     // Only check auth once
     checkAuth();
-  }, []); // Empty dependency array - only run once
-
-  const checkAuth = async () => {
-    if (checking) return; // Prevent duplicate calls
-    
-    setChecking(true);
-    try {
-      const result = await checkAuthStatus();
-      setAuthenticated(result.authenticated);
-    } catch (err) {
-      console.log('Not authenticated');
-      setAuthenticated(false);
-    } finally {
-      setLoading(false);
-      setChecking(false);
-    }
-  };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps // Empty dependency array - only run once
 
   const handleLogin = async () => {
     try {
