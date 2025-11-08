@@ -11,7 +11,7 @@ function App() {
   const [error, setError] = useState(null);
   const [checking, setChecking] = useState(false);
  
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  
   useEffect(() => {
     const checkAuth = async () => {
       if (checking) return;
@@ -46,7 +46,7 @@ function App() {
 
     // Only check auth once
     checkAuth();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps // Empty dependency array - only run once
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps 
 
   const handleLogin = async () => {
     try {
