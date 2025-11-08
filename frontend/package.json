@@ -1,6 +1,7 @@
 {
   "name": "jobmail-insight-frontend",
   "version": "1.0.0",
+  "homepage": "https://jobmail.akash-codes.space",
   "private": true,
   "dependencies": {
     "axios": "^1.6.2",
