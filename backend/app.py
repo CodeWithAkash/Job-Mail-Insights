@@ -1,41 +1,52 @@
-from flask import Flask, session
+from flask import Flask
 from flask_cors import CORS
 from config import Config
 from database import db
 import os
 from datetime import timedelta
 
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     app.secret_key = Config.SECRET_KEY
-    
-    # Configure session for cross-domain
-    app.config['SESSION_COOKIE_SAMESITE'] = 'None'
-    app.config['SESSION_COOKIE_SECURE'] = True
-    app.config['SESSION_COOKIE_HTTPONLY'] = True
-    app.config['SESSION_COOKIE_DOMAIN'] = None  # Allow any domain
-    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
-    app.config['SESSION_TYPE'] = 'filesystem'
-    
-    # Enable CORS with credentials
-    CORS(app, 
-         resources={r"/api/*": {
-             "origins": [Config.FRONTEND_URL, "http://localhost:3000"],
-             "supports_credentials": True,
-             "allow_headers": ["Content-Type", "Authorization"],
-             "methods": ["GET", "POST", "OPTIONS"],
-             "expose_headers": ["Content-Type", "Authorization"]
-         }},
-         supports_credentials=True)
-    
-    # Register blueprints
+
+    # ✅ Session configuration for cross-domain (frontend + backend)
+    app.config.update(
+        SESSION_COOKIE_SAMESITE='None',
+        SESSION_COOKIE_SECURE=True,
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_DOMAIN='.akash-codes.space',  # shared for subdomains
+        PERMANENT_SESSION_LIFETIME=timedelta(days=7),
+        SESSION_TYPE='filesystem'
+    )
+
+    # ✅ Correct frontend origins for CORS
+    allowed_origins = [
+        "https://jobmail.akash-codes.space",  # production frontend
+        "http://localhost:3000"               # local dev frontend
+    ]
+
+    CORS(
+        app,
+        resources={r"/api/*": {
+            "origins": allowed_origins,
+            "supports_credentials": True,
+            "allow_headers": ["Content-Type", "Authorization"],
+            "expose_headers": ["Content-Type", "Authorization"],
+            "methods": ["GET", "POST", "OPTIONS"]
+        }},
+        supports_credentials=True
+    )
+
+    # ✅ Register blueprints
     from routes.auth import auth_bp
     from routes.emails import emails_bp
-    
+
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(emails_bp, url_prefix='/api')
-    
+
+    # ✅ Health and root routes
     @app.route('/')
     def index():
         return {
@@ -43,22 +54,24 @@ def create_app():
             'status': 'running',
             'version': '1.0.0'
         }
-    
-    @app.route('/health')
+
+    @app.route('/api/health')
     def health():
-        return {'status': 'healthy', 'database': 'mongodb'}
-    
-    # Add after_request handler for CORS
+        return {'status': 'healthy', 'database': 'connected'}
+
+    # ✅ CORS headers for OPTIONS preflight requests
     @app.after_request
     def after_request(response):
-        origin = Config.FRONTEND_URL
-        response.headers.add('Access-Control-Allow-Origin', origin)
+        origin = os.getenv('FRONTEND_URL', 'https://jobmail.akash-codes.space')
+        if origin in allowed_origins:
+            response.headers.add('Access-Control-Allow-Origin', origin)
         response.headers.add('Access-Control-Allow-Credentials', 'true')
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS,DELETE,PUT')
         return response
-    
+
     return app
+
 
 if __name__ == '__main__':
     app = create_app()
