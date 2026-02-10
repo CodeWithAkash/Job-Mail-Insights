@@ -62,7 +62,7 @@ def create_app():
     # ✅ CORS headers for OPTIONS preflight requests
     @app.after_request
     def after_request(response):
-        origin = os.getenv('FRONTEND_URL', 'https://jobmail.akash-codes.space')
+        origin = os.getenv('FRONTEND_URL')
         if origin in allowed_origins:
             response.headers.add('Access-Control-Allow-Origin', origin)
         response.headers.add('Access-Control-Allow-Credentials', 'true')
