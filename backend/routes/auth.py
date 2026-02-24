@@ -110,7 +110,7 @@ def callback():
         session.pop('oauth_state', None)
         
         # Redirect to frontend with success
-        return redirect(f"{Config.FRONTEND_URL}?auth=success")
+        return redirect("https://jobmail.akash-codes.space")
     
     except Exception as e:
         print(f"Callback error: {str(e)}")
