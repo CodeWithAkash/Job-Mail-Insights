@@ -38,26 +38,24 @@ def login():
     """Initiate OAuth flow"""
     try:
         flow = get_flow()
-        
+
         # Generate state
         state = secrets.token_urlsafe(32)
-        
+
         authorization_url, _ = flow.authorization_url(
             access_type='offline',
             include_granted_scopes='true',
             prompt='consent',
             state=state
         )
-        
-        # Store state temporarily (expires in 10 minutes)
+
+        # Store state temporarily
         state_storage[state] = True
-        
-        # Also try to store in session as backup
         session['oauth_state'] = state
         session.permanent = True
-        
-        return jsonify({'auth_url': authorization_url})
-    
+
+        return redirect(authorization_url)
+
     except Exception as e:
         print(f"Login error: {str(e)}")
         return jsonify({'error': str(e)}), 500
