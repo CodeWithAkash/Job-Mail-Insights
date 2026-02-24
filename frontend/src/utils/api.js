@@ -26,9 +26,8 @@ api.interceptors.response.use(
   }
 );
 
-export const initiateLogin = async () => {
-  const response = await api.get('/auth/login');
-  return response.data;
+export const initiateLogin = () => {
+  window.location.href = `${API_URL}/auth/login`;
 };
 
 export const checkAuthStatus = async () => {
