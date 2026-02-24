@@ -64,7 +64,7 @@ sudo systemctl status mongodb
 #### Option B: MongoDB Atlas (Cloud)
 1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
 2. Create a free cluster
-3. Get your connection string (e.g., `mongodb+srv://username:password@cluster.mongodb.net/`)
+3. Get your connection string 
 
 ### 3️⃣ Setup Google OAuth2 Credentials
 
