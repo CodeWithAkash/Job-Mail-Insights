@@ -13,42 +13,29 @@ function App() {
   const [error, setError] = useState(null);
   const [checking, setChecking] = useState(false);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      if (checking) return;
-
-      setChecking(true);
-      try {
-        const result = await checkAuthStatus();
-        setAuthenticated(result.authenticated);
-      } catch (err) {
-        console.log('Not authenticated');
-        setAuthenticated(false);
-      } finally {
-        setLoading(false);
-        setChecking(false);
-      }
-    };
-
-    // Handle OAuth redirect parameters
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('auth') === 'success') {
-      setAuthenticated(true);
+useEffect(() => {
+  const checkAuth = async () => {
+    try {
+      const result = await checkAuthStatus();
+      setAuthenticated(result.authenticated);
+    } catch (err) {
+      setAuthenticated(false);
+    } finally {
       setLoading(false);
-      window.history.replaceState({}, document.title, '/');
-      return;
-    } else if (params.get('auth') === 'error') {
-      const message = params.get('message') || 'Authentication failed';
-      setError(message);
-      setLoading(false);
-      window.history.replaceState({}, document.title, '/');
-      return;
     }
+  };
 
-    // Initial auth check
+  // Always re-check auth after page load
+  checkAuth();
+
+  // Also re-check after 500ms (important for OAuth cookie timing)
+  const timer = setTimeout(() => {
     checkAuth();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps 
+  }, 500);
 
+  return () => clearTimeout(timer);
+
+}, []);
   const handleLogin = async () => {
     try {
       setError(null);
