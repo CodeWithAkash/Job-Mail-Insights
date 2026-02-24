@@ -13,13 +13,13 @@ def create_app():
 
     # ✅ Session configuration for cross-domain (frontend + backend)
     app.config.update(
-        SESSION_COOKIE_SAMESITE='None',
-        SESSION_COOKIE_SECURE=True,
-        SESSION_COOKIE_HTTPONLY=True,
-        SESSION_COOKIE_DOMAIN='.akash-codes.space',  # shared for subdomains
-        PERMANENT_SESSION_LIFETIME=timedelta(days=7),
-        SESSION_TYPE='filesystem'
-    )
+    SESSION_COOKIE_NAME='session',
+    SESSION_COOKIE_DOMAIN='.akash-codes.space',
+    SESSION_COOKIE_SAMESITE='None',
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    PERMANENT_SESSION_LIFETIME=timedelta(days=7)
+)
 
     # ✅ Correct frontend origins for CORS
     allowed_origins = [
