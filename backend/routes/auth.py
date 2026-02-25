@@ -38,24 +38,25 @@ def login():
     """Initiate OAuth flow"""
     try:
         flow = get_flow()
-
+        
         # Generate state
         state = secrets.token_urlsafe(32)
-
+        
         authorization_url, _ = flow.authorization_url(
             access_type='offline',
             include_granted_scopes='true',
             prompt='consent',
             state=state
         )
-
+        
         # Store state temporarily
         state_storage[state] = True
         session['oauth_state'] = state
         session.permanent = True
-
-        return redirect(authorization_url)
-
+        
+        # Return JSON with auth URL (not redirect)
+        return jsonify({'auth_url': authorization_url})
+    
     except Exception as e:
         print(f"Login error: {str(e)}")
         return jsonify({'error': str(e)}), 500
@@ -77,11 +78,9 @@ def callback():
         )
         
         if not state_valid:
-            print(f"Invalid state: {state_from_url}")
+            print(f"⚠️ Invalid state: {state_from_url}")
             print(f"Session state: {session.get('oauth_state')}")
             print(f"State storage: {state_from_url in state_storage}")
-            # Don't fail - proceed anyway for testing
-            # In production, you'd want to be stricter
         
         # Clean up state storage
         if state_from_url in state_storage:
@@ -95,19 +94,28 @@ def callback():
         credentials = flow.credentials
         
         # Store credentials in session
-        session['authenticated'] = True
-        session['token'] = credentials.token
+        session['credentials'] = {
+            'token': credentials.token,
+            'refresh_token': credentials.refresh_token,
+            'token_uri': credentials.token_uri,
+            'client_id': credentials.client_id,
+            'client_secret': credentials.client_secret,
+            'scopes': credentials.scopes
+        }
         
         session.permanent = True
         
         # Clear oauth_state
         session.pop('oauth_state', None)
-        print("SESSION INSIDE CALLBACK:", dict(session))
-        # Redirect to frontend with success
-        return redirect("https://jobmail.akash-codes.space")
+        
+        print("✅ OAuth successful, credentials stored")
+        print(f"Session keys: {list(session.keys())}")
+        
+        # IMPORTANT: Redirect with ?auth=success
+        return redirect(f"{Config.FRONTEND_URL}?auth=success")
     
     except Exception as e:
-        print(f"Callback error: {str(e)}")
+        print(f"❌ Callback error: {str(e)}")
         import traceback
         traceback.print_exc()
         error_message = str(e).replace(' ', '+')
@@ -115,8 +123,15 @@ def callback():
 
 @auth_bp.route('/status')
 def auth_status():
-    if session.get('authenticated'):
+    """Check if user is authenticated"""
+    print(f"🔍 Checking auth status. Session keys: {list(session.keys())}")
+    print(f"Session ID: {request.cookies.get('session')}")
+    
+    if 'credentials' in session:
+        print("✅ User is authenticated")
         return jsonify({'authenticated': True})
+    
+    print("❌ User not authenticated")
     return jsonify({'authenticated': False}), 401
 
 @auth_bp.route('/logout', methods=['POST'])
