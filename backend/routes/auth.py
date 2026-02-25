@@ -102,7 +102,7 @@ def callback():
         
         # Clear oauth_state
         session.pop('oauth_state', None)
-        
+        print("SESSION INSIDE CALLBACK:", dict(session))
         # Redirect to frontend with success
         return redirect("https://jobmail.akash-codes.space")
     
