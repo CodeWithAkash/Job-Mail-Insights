@@ -17,23 +17,22 @@ useEffect(() => {
     try {
       const result = await checkAuthStatus();
       setAuthenticated(result.authenticated);
-    } catch (err) {
+    } catch {
       setAuthenticated(false);
     } finally {
       setLoading(false);
     }
   };
 
-  // Always re-check auth after page load
+  // First check
   checkAuth();
 
-  // Also re-check after 500ms (important for OAuth cookie timing)
+  // Critical: check again after short delay (OAuth cookie timing)
   const timer = setTimeout(() => {
     checkAuth();
-  }, 500);
+  }, 800);
 
   return () => clearTimeout(timer);
-
 }, []);
   const handleLogin = () => {
   setError(null);
