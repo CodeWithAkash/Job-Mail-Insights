@@ -72,7 +72,6 @@ def callback():
 @auth_bp.route('/status')
 def auth_status():
     print("SESSION INSIDE STATUS:", dict(session))
-    print("SESSION INSIDE CALLBACK:", dict(session))
     if session.get('authenticated'):
         return jsonify({'authenticated': True})
     return jsonify({'authenticated': False}), 401

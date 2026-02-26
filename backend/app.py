@@ -25,7 +25,7 @@ def create_app():
         SESSION_COOKIE_HTTPONLY=True,
         PERMANENT_SESSION_LIFETIME=timedelta(days=7)
     )
-
+    os.makedirs('/tmp/flask_session', exist_ok=True)
     # Initialize Flask-Session
     Session(app)
 
