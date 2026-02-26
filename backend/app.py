@@ -13,7 +13,6 @@ def create_app():
     # ✅ Proper session configuration for subdomain authentication
     app.config.update(
         SESSION_COOKIE_NAME='session',
-        SESSION_COOKIE_DOMAIN='.akash-codes.space',  # Share across subdomains
         SESSION_COOKIE_SAMESITE='None',              # Required for cross-site cookies
         SESSION_COOKIE_SECURE=True,                  # Required for SameSite=None (HTTPS only)
         SESSION_COOKIE_HTTPONLY=True,
