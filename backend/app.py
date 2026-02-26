@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_session import Session
 from flask_cors import CORS
 from config import Config
 import os
@@ -10,29 +11,41 @@ def create_app():
     app.config.from_object(Config)
     app.secret_key = Config.SECRET_KEY
 
-    # ✅ Proper session configuration for subdomain authentication
+    # -----------------------------
+    # SERVER-SIDE SESSION CONFIG
+    # -----------------------------
     app.config.update(
+        SESSION_TYPE='filesystem',                 # Store sessions on server
+        SESSION_PERMANENT=True,
+        SESSION_USE_SIGNER=True,
+        SESSION_FILE_DIR='/tmp/flask_session',     # Render-safe temp dir
         SESSION_COOKIE_NAME='session',
-        SESSION_COOKIE_SAMESITE='None',              # Required for cross-site cookies
-        SESSION_COOKIE_SECURE=True,                  # Required for SameSite=None (HTTPS only)
+        SESSION_COOKIE_SAMESITE='None',
+        SESSION_COOKIE_SECURE=True,
         SESSION_COOKIE_HTTPONLY=True,
         PERMANENT_SESSION_LIFETIME=timedelta(days=7)
     )
 
-    # ✅ Allowed frontend origins
+    # Initialize Flask-Session
+    Session(app)
+
+    # -----------------------------
+    # CORS CONFIG
+    # -----------------------------
     allowed_origins = [
         "https://jobmail.akash-codes.space",
         "http://localhost:3000"
     ]
 
-    # ✅ Correct CORS configuration (NO manual headers)
     CORS(
         app,
         resources={r"/api/*": {"origins": allowed_origins}},
         supports_credentials=True
     )
 
-    # ✅ Register blueprints
+    # -----------------------------
+    # REGISTER BLUEPRINTS
+    # -----------------------------
     from routes.auth import auth_bp
     from routes.emails import emails_bp
 
