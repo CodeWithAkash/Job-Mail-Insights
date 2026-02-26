@@ -11,22 +11,14 @@ emails_bp = Blueprint('emails', __name__)
 
 
 def get_gmail_service():
-    if not session.get('authenticated') or 'credentials' not in session:
+    if not session.get('authenticated'):
         return None
 
     creds_data = session.get('credentials')
+    if not creds_data:
+        return None
 
-    credentials = Credentials(
-        token=creds_data.get('token'),
-        refresh_token=creds_data.get('refresh_token'),
-        token_uri=creds_data.get('token_uri'),
-        client_id=creds_data.get('client_id'),
-        client_secret=creds_data.get('client_secret'),
-        scopes=creds_data.get('scopes')
-    )
-
-    return GmailService(credentials)
-
+    return GmailService(creds_data)
 
 @emails_bp.route('/emails', methods=['GET'])
 def get_emails():
