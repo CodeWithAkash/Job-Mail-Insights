@@ -36,16 +36,10 @@ useEffect(() => {
   return () => clearTimeout(timer);
 
 }, []);
-  const handleLogin = async () => {
-    try {
-      setError(null);
-      const result = await initiateLogin();
-      window.location.href = result.auth_url;
-    } catch (err) {
-      setError('Failed to initiate login. Please try again.');
-      console.error('Login error:', err);
-    }
-  };
+  const handleLogin = () => {
+  setError(null);
+  initiateLogin();
+};
 
   const handleLogout = async () => {
     try {
