@@ -54,7 +54,7 @@ def login():
         session['oauth_state'] = state
         session.permanent = True
 
-        return jsonify({'auth_url': authorization_url})
+        return redirect(authorization_url)
 
     except Exception as e:
         print(f"Login error: {str(e)}")
