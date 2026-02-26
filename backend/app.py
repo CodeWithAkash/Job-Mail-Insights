@@ -1,5 +1,4 @@
 from flask import Flask
-from flask_session import Session
 from flask_cors import CORS
 from config import Config
 import os
@@ -11,26 +10,19 @@ def create_app():
     app.config.from_object(Config)
     app.secret_key = Config.SECRET_KEY
 
-    # -----------------------------
     # SERVER-SIDE SESSION CONFIG
-    # -----------------------------
+    
     app.config.update(
-        SESSION_TYPE='filesystem',                 # Store sessions on server
-        SESSION_PERMANENT=True,
-        SESSION_USE_SIGNER=True,
-        SESSION_FILE_DIR='/tmp/flask_session',     # Render-safe temp dir
         SESSION_COOKIE_NAME='session',
         SESSION_COOKIE_SAMESITE='None',
         SESSION_COOKIE_SECURE=True,
         SESSION_COOKIE_HTTPONLY=True,
         PERMANENT_SESSION_LIFETIME=timedelta(days=7)
     )
-    # Initialize Flask-Session
-    Session(app)
+    
 
-    # -----------------------------
     # CORS CONFIG
-    # -----------------------------
+    
     allowed_origins = [
         "https://jobmail.akash-codes.space",
         "http://localhost:3000"
@@ -42,9 +34,8 @@ def create_app():
         supports_credentials=True
     )
 
-    # -----------------------------
     # REGISTER BLUEPRINTS
-    # -----------------------------
+  
     from routes.auth import auth_bp
     from routes.emails import emails_bp
 
