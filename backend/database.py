@@ -54,13 +54,13 @@ class Database:
     def emails(self):
         if self._client is None:
             self._connect()
-        return self._db.emails if self._db else None
+        return self._db.emails if self._db is not None else None
     
     @property
     def users(self):
         if self._client is None:
             self._connect()
-        return self._db.users if self._db else None
+        return self._db.users if self._db is not None else None
     
     def close(self):
         if self._client:
