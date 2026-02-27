@@ -43,7 +43,7 @@ def get_emails():
                     'cached': True
                 })
 
-        messages = gmail_service.fetch_job_emails(max_results=20)
+        messages = gmail_service.fetch_job_emails(max_results=15)
 
         emails_data = []
 
