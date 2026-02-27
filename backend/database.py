@@ -21,7 +21,6 @@ class Database:
             print("✅ MongoDB connected successfully")
 
             self._setup_indexes()
-
         except Exception as e:
             print(f"❌ MongoDB connection error: {e}")
             raise Exception("Database connection failed")
