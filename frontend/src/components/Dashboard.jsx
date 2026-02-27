@@ -31,6 +31,7 @@ const Dashboard = () => {
       } else {
         setLoading(true);
       }
+
       setError(null);
 
       const [emailsData, statsData] = await Promise.all([
@@ -97,26 +98,39 @@ const Dashboard = () => {
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Refresh Indicator */}
-        {refreshing && (
-          <div className={`mb-6 p-4 rounded-xl ${darkMode ? 'bg-blue-900/30 border border-blue-800' : 'bg-blue-50 border border-blue-200'} flex items-center space-x-3`}>
-            <Loader className={`w-5 h-5 animate-spin ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
-            <span className={`font-medium ${darkMode ? 'text-blue-300' : 'text-blue-700'}`}>
-              Refreshing your emails...
-            </span>
+
+        {/* HEADER + REFRESH BUTTON */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              Dashboard
+            </h1>
+            <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Analyze and track your job application emails
+            </p>
           </div>
-        )}
 
-        {/* Stats Section */}
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className={`flex items-center space-x-2 px-5 py-2.5 rounded-xl font-semibold shadow-md transition-all transform duration-200
+              ${
+                refreshing
+                  ? "bg-gray-400 cursor-not-allowed text-white"
+                  : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 hover:scale-105"
+              }`}
+          >
+            <RefreshCw
+              className={`w-5 h-5 ${refreshing ? "animate-spin" : ""}`}
+            />
+            <span>{refreshing ? "Refreshing..." : "Refresh"}</span>
+          </button>
+        </div>
+
         <StatsCards stats={stats} />
-
-        {/* Charts Section */}
         <Charts stats={stats} />
-
-        {/* Email Table Section */}
         <EmailTable emails={emails} onRefresh={handleRefresh} />
 
-        {/* Empty State */}
         {emails.length === 0 && !loading && (
           <div className={`mt-8 p-12 rounded-2xl shadow-xl text-center ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'}`}>
             <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
