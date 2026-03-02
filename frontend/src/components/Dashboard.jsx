@@ -63,7 +63,7 @@ const Dashboard = () => {
             Loading Your Emails
           </h3>
           <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            Fetching and analyzing your job applications emails...
+            Fetching and analyzing your job applications....
           </p>
         </div>
       </div>
