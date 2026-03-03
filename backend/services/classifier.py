@@ -1,5 +1,7 @@
 import os
 import joblib
+import re
+import string
 
 
 MODEL_PATH = os.path.join(
@@ -8,6 +10,16 @@ MODEL_PATH = os.path.join(
     "ml",
     "email_classifier.pkl"
 )
+
+
+def clean_text(text):
+    text = text.lower()
+    text = re.sub(r'\n', ' ', text)
+    text = re.sub(r'\r', ' ', text)
+    text = re.sub(r'\d+', '', text)
+    text = text.translate(str.maketrans('', '', string.punctuation))
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
 
 
 class EmailClassifier:
@@ -21,9 +33,10 @@ class EmailClassifier:
 
     def classify(self, subject, body):
         try:
-            text = f"{subject} {body}"
+            text = clean_text(f"{subject} {body}")
             prediction = self.model.predict([text])[0]
             return prediction
+
         except Exception as e:
             print("Classification error:", e)
             return "Pending"
