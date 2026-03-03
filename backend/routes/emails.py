@@ -1,11 +1,9 @@
 from flask import Blueprint, jsonify, session, request
-from google.oauth2.credentials import Credentials
 from services.gmail_service import GmailService
 from services.classifier import EmailClassifier
 from models.email import Email
 from database import db
 from datetime import datetime
-from config import Config
 
 emails_bp = Blueprint('emails', __name__)
 
@@ -20,6 +18,7 @@ def get_gmail_service():
 
     return GmailService(creds_data)
 
+
 @emails_bp.route('/emails', methods=['GET'])
 def get_emails():
     gmail_service = get_gmail_service()
@@ -27,6 +26,9 @@ def get_emails():
         return jsonify({'error': 'Not authenticated'}), 401
 
     try:
+        if db.emails is None:
+            return jsonify({'error': 'Database not connected'}), 500
+
         classifier = EmailClassifier()
 
         user_info = gmail_service.get_user_info()
@@ -34,6 +36,7 @@ def get_emails():
 
         force_refresh = request.args.get('refresh', 'false').lower() == 'true'
 
+        # ✅ Return cached emails only if NOT forcing refresh
         if not force_refresh:
             cached = list(db.emails.find({'user_email': user_email}).sort('date', -1))
             if cached:
@@ -43,6 +46,7 @@ def get_emails():
                     'cached': True
                 })
 
+        # ✅ Fetch fresh emails
         messages = gmail_service.fetch_job_emails(max_results=15)
 
         emails_data = []
@@ -58,24 +62,36 @@ def get_emails():
             except:
                 email_date = datetime.utcnow()
 
-            email_obj = Email(
-                user_email=user_email,
-                gmail_id=msg['id'],
-                subject=subject,
-                sender=sender,
-                company="Unknown",
-                status=classifier.classify(subject, body),
-                date=email_date,
-                snippet=body[:500]
-            )
+            # ✅ Reclassify always
+            status = classifier.classify(subject, body)
 
-            db.emails.update_one(
-                {'user_email': user_email, 'gmail_id': msg['id']},
-                {'$set': email_obj.to_dict()},
-                upsert=True
-            )
+            email_dict = {
+                'user_email': user_email,
+                'gmail_id': msg['id'],
+                'subject': subject,
+                'sender': sender,
+                'company': "Unknown",
+                'status': status,
+                'date': email_date,
+                'snippet': body[:500],
+                'read': False
+            }
 
-            emails_data.append(Email.from_dict(email_obj.to_dict()))
+            # 🔥 IMPORTANT: Overwrite if refresh, insert-only otherwise
+            if force_refresh:
+                db.emails.update_one(
+                    {'user_email': user_email, 'gmail_id': msg['id']},
+                    {'$set': email_dict},
+                    upsert=True
+                )
+            else:
+                db.emails.update_one(
+                    {'user_email': user_email, 'gmail_id': msg['id']},
+                    {'$setOnInsert': email_dict},
+                    upsert=True
+                )
+
+            emails_data.append(Email.from_dict(email_dict))
 
         return jsonify({
             'emails': emails_data,
@@ -95,6 +111,9 @@ def get_stats():
         return jsonify({'error': 'Not authenticated'}), 401
 
     try:
+        if db.emails is None:
+            return jsonify({'error': 'Database not connected'}), 500
+
         user_info = gmail_service.get_user_info()
         user_email = user_info.get('emailAddress')
 
