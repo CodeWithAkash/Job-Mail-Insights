@@ -47,7 +47,7 @@ def get_emails():
                 })
 
         # ✅ Fetch fresh emails
-        messages = gmail_service.fetch_job_emails(max_results=25)
+        messages = gmail_service.fetch_job_emails(max_results=20)
 
         emails_data = []
 
