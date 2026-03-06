@@ -1,5 +1,6 @@
 import pandas as pd
 import joblib
+import os
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -7,9 +8,12 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
+BASE_DIR = os.path.dirname(__file__)
+DATA_PATH = os.path.join(BASE_DIR, "training_data.csv")
+
 print("Loading dataset...")
 
-df = pd.read_csv("training_data.csv")
+df = pd.read_csv(DATA_PATH)
 
 print("Dataset size:", len(df))
 

@@ -19,23 +19,17 @@ def create_app():
         SESSION_COOKIE_HTTPONLY=True,
         PERMANENT_SESSION_LIFETIME=timedelta(days=7)
     )
-    
-
-    # CORS CONFIG
-    
+    # CORS CONFIG  
     allowed_origins = [
         "https://jobmail.akash-codes.space",
         "http://localhost:3000"
     ]
-
     CORS(
         app,
         resources={r"/api/*": {"origins": allowed_origins}},
         supports_credentials=True
     )
-
     # REGISTER BLUEPRINTS
-  
     from routes.auth import auth_bp
     from routes.emails import emails_bp
 
@@ -60,7 +54,6 @@ def create_app():
         }
 
     return app
-
 
 if __name__ == '__main__':
     app = create_app()
