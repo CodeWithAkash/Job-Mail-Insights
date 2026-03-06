@@ -1,6 +1,6 @@
+import os
 import pandas as pd
 import joblib
-import os
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -8,10 +8,12 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
+
 BASE_DIR = os.path.dirname(__file__)
 DATA_PATH = os.path.join(BASE_DIR, "training_data.csv")
+MODEL_PATH = os.path.join(BASE_DIR, "email_classifier.pkl")
 
-print("Loading dataset...")
+print("Loading dataset from:", DATA_PATH)
 
 df = pd.read_csv(DATA_PATH)
 
@@ -30,12 +32,12 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 print("Training model...")
 
-model = Pipeline([
+pipeline = Pipeline([
     (
         "tfidf",
         TfidfVectorizer(
             stop_words="english",
-            ngram_range=(1,3),
+            ngram_range=(1, 3),
             max_features=8000,
             min_df=2
         )
@@ -49,14 +51,15 @@ model = Pipeline([
     )
 ])
 
-model.fit(X_train, y_train)
+pipeline.fit(X_train, y_train)
 
-print("\nModel Evaluation:\n")
+print("\nEvaluating model...\n")
 
-y_pred = model.predict(X_test)
+y_pred = pipeline.predict(X_test)
 
 print(classification_report(y_test, y_pred))
 
-joblib.dump(model, "email_classifier.pkl")
+joblib.dump(pipeline, MODEL_PATH)
 
-print("\n✅ Model trained and saved successfully!")
+print("\nModel saved to:", MODEL_PATH)
+print("Training completed successfully.")
