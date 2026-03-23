@@ -90,7 +90,7 @@ def get_emails():
 
         # -------- Fetch Gmail --------
 
-        messages = gmail_service.fetch_job_emails(max_results=25)
+        messages = gmail_service.fetch_job_emails(max_results=20)
 
         emails_data = []
 
