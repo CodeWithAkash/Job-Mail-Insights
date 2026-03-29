@@ -47,7 +47,7 @@ Backend API: https://api.akash-codes.space
 1. User clicks **Connect Gmail**
 2. Redirected to Google OAuth
 3. Backend receives authorization code
-4. Access + refresh token stored in Flask session
+4. Access and refresh token stored in Flask session
 5. Gmail API used to fetch job-related emails
 
 ---
