@@ -12,7 +12,7 @@ class GmailService:
     def get_user_info(self):
         return self.service.users().getProfile(userId='me').execute()
 
-    def fetch_job_emails(self, max_results=25):
+    def fetch_job_emails(self, max_results=35):
         query = (
             'subject:(application OR interview OR position OR job OR opportunity OR '
             'career OR hiring OR recruitment OR candidate OR role OR offer) '
