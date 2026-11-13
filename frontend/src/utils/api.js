@@ -1,6 +1,7 @@
+
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://job-mail-insights.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -8,10 +9,10 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 20000 // 20 second timeout
+  timeout: 20000 //20 second timeout
 });
 
-// Add response interceptor for better error handling
+//Add response interceptor for better error handling
 api.interceptors.response.use(
   response => response,
   error => {
